@@ -6,16 +6,21 @@ import {
 
 let mediaStream;
 const fps = 60;
+//tuto
+//const apiToken = 'eyJhbGciOiJIUzI1NiIsImtpZCI6IkNhbnZhc1MyU0hNQUNQcm9kIiwidHlwIjoiSldUIn0.eyJhdWQiOiJjYW52YXMtY2FudmFzYXBpIiwiaXNzIjoiY2FudmFzLXMyc3Rva2VuIiwibmJmIjoxNjg0ODMxMTQ0LCJzdWIiOiJlYTg4ZjQyZC0xYmM5LTRkN2YtYTMwMS02Y2M4YzU2OTg2Y2J-U1RBR0lOR340OGY1YjJmYS1iZGNjLTQ5MzAtYjI2NS1jNGYzODliMzAwYjAifQ.BojCwDCBLoh_7wsjjiM59vkpvdCDUyDd0WVMcFjcei0';
+//mio
 const apiToken = 'eyJhbGciOiJIUzI1NiIsImtpZCI6IkNhbnZhc1MyU0hNQUNQcm9kIiwidHlwIjoiSldUIn0.eyJhdWQiOiJjYW52YXMtY2FudmFzYXBpIiwiaXNzIjoiY2FudmFzLXMyc3Rva2VuIiwibmJmIjoxNzE4MzAxNTc0LCJzdWIiOiIyMzBhNmYzMC1mNzg2LTRjYzAtOTFjZS04Mzc0OGM0OTQzZGZ-U1RBR0lOR345ODJmNDBmMi0wMTVjLTRkZGItOTJlYy1mYzk1NDQ3MjZiY2QifQ.BkamWEBU6PxFdKsNEAQnAihzzkqgpgS6E4NUQSvAAV0';
+//mio 2
+//const apiToken = 'eyJhbGciOiJIUzI1NiIsImtpZCI6IkNhbnZhc1MyU0hNQUNQcm9kIiwidHlwIjoiSldUIn0.eyJhdWQiOiJjYW52YXMtY2FudmFzYXBpIiwiaXNzIjoiY2FudmFzLXMyc3Rva2VuIiwibmJmIjoxNzIwMTI0MDkwLCJzdWIiOiIyMzBhNmYzMC1mNzg2LTRjYzAtOTFjZS04Mzc0OGM0OTQzZGZ-UFJPRFVDVElPTn5jYjZhNGE5NC0yNGQyLTRjZGUtODQ2NC1lMTAzYjUzMWEwMmQifQ.KuM5CuEp788ZecRpWVKi731baAmis7Iqt18q44RMxBk';
 const lensGroupID = '54483818-148b-4e5c-8541-27bd4b1a6984';
 const liveRenderTarget = document.getElementById('canvas');
 let flipCamera = document.getElementById('flip');
 let isBackFacing = false;
 
-const videoTarget = document.getElementById('video');
-let mediaRecorder;
-let downloadUrl;
-let recordedChunks = [];
+// const videoTarget = document.getElementById('video');
+// let mediaRecorder;
+// let downloadUrl;
+// let recordedChunks = [];
 
 async function init() {
   const cameraKit = await bootstrapCameraKit({ apiToken: apiToken });

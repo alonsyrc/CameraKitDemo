@@ -10,7 +10,7 @@ const apiToken = 'eyJhbGciOiJIUzI1NiIsImtpZCI6IkNhbnZhc1MyU0hNQUNQcm9kIiwidHlwIj
 const lensGroupID = '54483818-148b-4e5c-8541-27bd4b1a6984';
 const liveRenderTarget = document.getElementById('canvas');
 let flipCamera = document.getElementById('flip');
-let isBackFacing = true;
+let isBackFacing = false;
 
 const videoTarget = document.getElementById('video');
 let mediaRecorder;
@@ -18,13 +18,14 @@ let downloadUrl;
 let recordedChunks = [];
 
 async function init() {
-  const cameraKit = await bootstrapCameraKit({ apiToken: apiToken, });
+  const cameraKit = await bootstrapCameraKit({ apiToken: apiToken });
   const session = await cameraKit.createSession({ liveRenderTarget });
-  const { lenses } = await cameraKit.lensRepository.loadLensGroups([lensGroupID,]);
+  const { lenses } = await cameraKit.lensRepository.loadLensGroups([lensGroupID]);
   session.applyLens(lenses[0]);
   bindFlipCamera(session);
-  bindRecorder();
-  attachLensesToSelect(lenses, session);
+  // bindRecorder();
+  //ttachLensesToSelect(lenses, session);
+  attachLensesToButtons(lenses, session);
   document.getElementById('canvas').replaceWith(session.output.live);
   await session.setFPSLimit(fps);
 }
@@ -78,61 +79,117 @@ async function attachLensesToSelect(lenses, session) {
   });
 }
 
-function bindRecorder() {
-  const startRecordingButton = document.getElementById('start');
-  const stopRecordingButton = document.getElementById('stop');
-  const downloadButton = document.getElementById('download');
-  const videoContainer = document.getElementById('video-container');
-  const liveRenderTarget = document.getElementById('canvas');
-  const videoTarget = document.getElementById('video');
-
-  const fps = 30; // Adjust the FPS as needed
-
-  startRecordingButton.addEventListener('click', () => {
-      startRecordingButton.disabled = true;
-      stopRecordingButton.disabled = false;
-      downloadButton.disabled = true;
-      videoContainer.style.display = 'none';
-
-      const mediaStream = liveRenderTarget.captureStream(fps);
-      recordedChunks = [];
-
-      mediaRecorder = new MediaRecorder(mediaStream);
-
-      mediaRecorder.addEventListener('dataavailable', (event) => {
-        if (event.data.size >= 0) {
-          console.log("abc");
-          recordedChunks.push(event.data);
-        }
-        const blob = new Blob([event.data]);
-
-        downloadUrl = window.URL.createObjectURL(blob);
-        downloadButton.disabled = false;
-
-        videoTarget.src = downloadUrl;
-        videoContainer.style.display = 'block';
-        
-      });
-      mediaRecorder.start();
+async function attachLensesToButtons(lenses, session) {
+  const lensButtonsContainer = document.getElementById('lens-buttons-container');
+  
+  lenses.forEach((lens, index) => {
+    const button = document.createElement('button');
+    button.className = 'lens-button';
+    if (index === 0) {
+      button.classList.add('active');
+    }
+    const img = document.createElement('img');
+    img.src = lens.thumbnail; // Asumiendo que cada lente tiene una miniatura
+    img.alt = lens.name;
+    button.appendChild(img);
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.lens-button').forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      const selectedLens = lenses.find((l) => l.id === lens.id);
+      if (selectedLens) {
+        session.applyLens(selectedLens);
+      }
+    });
+    lensButtonsContainer.appendChild(button);
   });
 
-
-  stopRecordingButton.addEventListener('click', () => {
-    startRecordingButton.disabled = false;
-    stopRecordingButton.disabled = true;
-
-    mediaRecorder?.stop();
-  });
-
-  downloadButton.addEventListener('click', () => {
-    const link = document.createElement('a');
-
-    link.setAttribute('style', 'display: none');
-    link.href = downloadUrl;
-    link.download = 'camera-kit-web-recording.webm';
-    link.click();
-    link.remove();
-  });
+  // Aplica el primer lente automáticamente al cargar la página
+  if (lenses.length > 0) {
+    session.applyLens(lenses[0]);
+  }
 }
+
+
+const session = {
+  applyLens: (lens) => {
+    console.log('Aplicando lente:', lens);
+    // Aquí iría el código para aplicar el lente en la sesión real
+  }
+};
+
+// function bindRecorder() {
+//   const startRecordingButton = document.getElementById('start');
+//   const stopRecordingButton = document.getElementById('stop');
+//   const downloadButton = document.getElementById('download');
+//   const videoContainer = document.getElementById('video-container');
+//   const liveRenderTarget = document.getElementById('canvas');
+//   const videoTarget = document.getElementById('video');
+
+//   startRecordingButton.addEventListener('click', () => {
+//     startRecordingButton.disabled = true;
+//     stopRecordingButton.disabled = false;
+//     downloadButton.disabled = true;
+//     videoContainer.style.display = 'none';
+
+//     const mediaStream = liveRenderTarget.captureStream(fps);
+//     recordedChunks = [];
+
+//     try {
+//       mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/webm; codecs=vp8' });
+//     } catch (e) {
+//       console.error('Exception while creating MediaRecorder:', e);
+//       return;
+//     }
+
+//     console.log('Created MediaRecorder', mediaRecorder, 'with options', { mimeType: 'video/webm; codecs=vp8' });
+
+//     mediaRecorder.ondataavailable = handleDataAvailable;
+//     mediaRecorder.onstop = handleStop;
+
+//     mediaRecorder.start(100); // Collect 100ms chunks
+//     console.log('MediaRecorder started', mediaRecorder);
+//   });
+
+//   stopRecordingButton.addEventListener('click', () => {
+//     startRecordingButton.disabled = false;
+//     stopRecordingButton.disabled = true;
+
+//     mediaRecorder?.stop();
+//   });
+
+//   downloadButton.addEventListener('click', () => {
+//     const link = document.createElement('a');
+
+//     link.setAttribute('style', 'display: none');
+//     link.href = downloadUrl;
+//     link.download = 'camera-kit-web-recording.webm';
+//     link.click();
+//     link.remove();
+//   });
+// }
+
+// function handleDataAvailable(event) {
+//   console.log('Data available:', event);
+//   console.log(event.data.size);
+//   if (event.data.size > 0) {
+//     console.log('Data size is greater than 0');
+//     recordedChunks.push(event.data);
+//   }
+// }
+
+// function handleStop() {
+//   console.log('Recording stopped');
+//   const blob = new Blob(recordedChunks, { type: 'video/webm' });
+//   downloadUrl = window.URL.createObjectURL(blob);
+//   const downloadButton = document.getElementById('download');
+//   downloadButton.disabled = false;
+
+//   const videoTarget = document.getElementById('video');
+//   videoTarget.src = downloadUrl;
+
+//   const videoContainer = document.getElementById('video-container');
+//   videoContainer.style.display = 'block';
+//   console.log('Blob size:', blob.size);
+// }
 
 init();
